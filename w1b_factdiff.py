@@ -1,4 +1,3 @@
-#!/usr/bin/python
 
 def factorial(i):
     if i==1 :

@@ -17,56 +17,45 @@
 #include <stdlib.h>
 #include <iostream>
 #include <ctime>
+#include <climits>
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  tt_wrap_around
- *  Description:  Time to wrap around
- * =====================================================================================
- */
-double uint_tt_wrap_around_int_s(int m)
-{
-    int n = m;
-    clock_t start_clock, end_clock;
-    start_clock = clock();
-    while( ++m != n )
-        ;
-    end_clock = clock();
-    double seconds = (double)(end_clock - start_clock) / CLOCKS_PER_SEC;
-    return seconds;
-}
-
-double tt_wrap_around_uint_s_ms(unsigned short int m)
-{
-    int n = m;
-    clock_t start_clock, end_clock;
-    start_clock = clock();
-    while( ++m != n )
-        ;
-    end_clock = clock();
-    double seconds = (double)(end_clock - start_clock);
-    return seconds;
-}
-
-double tt_wrap_around_uint_l_y(unsigned long int m)
-{
-    int n = m;
-    clock_t start_clock, end_clock;
-    start_clock = clock();
-    while( ++m != n )
-        ;
-    end_clock = clock();
-    double seconds = (double)(end_clock - start_clock) / (CLOCKS_PER_SEC*
-                                                            60*
-                                                            60*
-                                                            24*
-                                                            );
-    return seconds;
-}
 
 main()
 {
-    short unsigned int m = 1;
-    std::cout << tt_wrap_around(m) << std::endl;
+    // Times to wrap around in ms
+    double wrap_around_uint_s, wrap_around_uint, wrap_around_uint_l;
+    clock_t start_clock, end_clock;
+    
+    short unsigned int ushort=0;
+    unsigned int uint=0;
+    long unsigned int ulong=0;
+
+    // For short unsigned int
+    start_clock = clock();
+    while( ++ushort != 0 )
+        ;
+    end_clock = clock();
+    wrap_around_uint_s = (double)(end_clock - start_clock);
+    std::cout   << "short unsigned int time (microseconds): "
+                << wrap_around_uint_s
+                << std::endl;
+    // For unsigned int
+    start_clock = clock();
+    while( ++uint != 0 )
+        ;
+    end_clock = clock();
+    wrap_around_uint = (double)(end_clock - start_clock);
+    std::cout   << "unsigned int time (seconds):  " 
+                << wrap_around_uint/CLOCKS_PER_SEC
+                << std::endl;
+    
+    // For long unsigned int
+    wrap_around_uint_l = wrap_around_uint*ULONG_MAX/UINT_MAX;
+    std::cout << "unsigned int time (years):  " 
+              << wrap_around_uint_l/(   CLOCKS_PER_SEC
+                                        *3600
+                                        *24
+                                        *365)
+                << std::endl;
 }
 
