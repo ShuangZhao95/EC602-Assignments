@@ -1,8 +1,7 @@
 // single_parts
 #include <iostream>
 #include <iomanip>
-#include <cassert>
-
+#include <bitset>
 using namespace std;
 
 typedef unsigned long int raw32; 
@@ -11,13 +10,13 @@ typedef unsigned long long int raw64;
 
 struct Single_Parts {
 	raw32 fraction : 23;
-	raw32 exponent : 11;
+	raw32 exponent : 8;
 	raw32 sign : 1;
 };
 
-const raw32 MASK_SIGN = 1UL << 31;
-const raw32 MASK_BEXP = 0x8 << 23;
-const raw32 MASK_FRAC = 0xffffffffffUL;
+const raw64 MASK_SIGN = 1UL << 63;
+const raw64 MASK_BEXP = 0x07ffULL << 52;
+const raw64 MASK_FRAC = 0xfffffffffffffULL;
 // print out the parts of the structure Single_Parts
 void print_sp(Single_Parts sp) 
 { 
@@ -36,18 +35,26 @@ void print_sp(Single_Parts sp)
 Single_Parts take_apart(double d)
 {
 	Single_Parts sp;
-	raw64 x = *reinterpret_cast<raw32*>(&d);
-
-	sp.sign = (x & MASK_SIGN) >> 31;
-	sp.exponent = (x & MASK_BEXP) >> 23;
-	sp.fraction = (x & MASK_FRAC);
+	raw64 x = *reinterpret_cast<raw64*>(&d);
+        std::cout << std::bitset<64>(x) <<  std::endl;
+	sp.sign = (x & MASK_SIGN) >> 63;
+//        std::cout <<  std::bitset<1>(sp.sign) <<  std::endl;
+	sp.exponent = (x & MASK_BEXP) >> 52 + 3 ;
+//        std::cout <<  std::bitset<8>(sp.exponent) <<  std::endl;
+	sp.fraction = (x & MASK_FRAC) >> 52 - 23;
+//        std::cout <<  std::bitset<23>(sp.fraction) <<  std::endl;
 	return sp;
 }
 
 double build(Single_Parts sp)
 {
-	raw64 c
-	return *reinterpret_cast<double*>(&sp);
+	raw64 c = 0;
+        c = ( (raw64)sp.sign << 63) +
+            ( (raw64)sp.exponent << 52+3) +
+            ((raw64)sp.fraction << 52 -23 );
+        std::cout << std::bitset<64>(c) <<  std::endl;
+
+	return *reinterpret_cast<double*>(&c);
 }
 
 // defiVne Single_Parts, build(), and take_apart() for float
@@ -64,11 +71,11 @@ int main()
 	{   
 		// take apart the numbers, then re-build to test that it works.
 		
-		Single_Parts dp= take_apart(numbers[i]);
-	 	num_from_build = build(dp);
+		Single_Parts s= take_apart(numbers[i]);
+	 	num_from_build = build(s);
 
 	 	cout << endl;
-	    print_sp(dp);
+	    print_sp(s);
 	 	cout << numbers[i] << " " << num_from_build  << endl;
 	}
 

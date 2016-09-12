@@ -3,7 +3,7 @@
 #     00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15
 #  sign |  exponent    |       fraction                parts of half
 #  ---------------------------------------------------
-#    |     1     |     2     |     3     |     4     | nibbles
+#    |     1     |     2     |     3     |     4     | nibbles(4 bits)
 #     00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15
 #
 # Breakdown of each nibble:
@@ -26,11 +26,11 @@ def number_from_half(s : str):
     fraction = (((( i & 0x0F00 ) >> 8 ) & 0b0011 ) << 8 ) + ( i & 0x00FF )
 
     if exponent == 0  :
-        num = (-1)**sign * 2**(-14) * fraction * (0b1)**(-10)
-    elif exponent == 1 :
+        num = (-1)**sign * 2**(-14) * (1 + fraction * (0b10)**(-10))
+    elif exponent == 0b11111 :
         return "inf"
     else :
-        num = (-1)**sign * 2**(exponent - 15) * fraction * (0b1)**(-10)
+        num = (-1)**sign * 2**(exponent - 15) * (1+fraction * (0b10)**(-10))
         
     return num
 def main():
@@ -44,7 +44,6 @@ def main():
         try:
             num = number_from_half(input())
             sum += num
-            print(num)
         except:
             print(sum)
             return
