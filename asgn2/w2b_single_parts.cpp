@@ -37,6 +37,7 @@ Single_Parts take_apart(double d)
 	Single_Parts sp;
 	raw64 x = *reinterpret_cast<raw64*>(&d);
         std::cout << std::bitset<64>(x) <<  std::endl;
+        std::cout << hex << x <<  std::endl;
 	sp.sign = (x & MASK_SIGN) >> 63;
 //        std::cout <<  std::bitset<1>(sp.sign) <<  std::endl;
 	sp.exponent = (x & MASK_BEXP) >> 52 + 3 ;
@@ -53,6 +54,7 @@ double build(Single_Parts sp)
             ( (raw64)sp.exponent << 52+3) +
             ((raw64)sp.fraction << 52 -23 );
         std::cout << std::bitset<64>(c) <<  std::endl;
+        std::cout << hex << c <<  std::endl;
 
 	return *reinterpret_cast<double*>(&c);
 }

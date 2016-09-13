@@ -46,6 +46,7 @@ def main():
             sum += num
         except:
             print(sum)
+            bin(sum)
             return
 
 if __name__ == '__main__':
