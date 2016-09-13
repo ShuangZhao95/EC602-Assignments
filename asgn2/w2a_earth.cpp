@@ -4,22 +4,8 @@
 
 
 double avo = 6.0221409 * pow(10,23);
-//From http://quake.mit.edu/hilstgroup/CoreMantle/EarthCompo.pdf and wikipedia
 
-enum Elements {
-    oxygen,
-    magnesium,
-    silicon,
-    iron,
-    aluminum,
-    calcium,
-    nickel,
-    hydrogen,
-    sulfur,
-    chromium,
-    sodium,   
-    carbon   
-};
+//From http://quake.mit.edu/hilstgroup/CoreMantle/EarthCompo.pdf and wikipedia
 int ppm[] = 
 {
     297000,  //oxygen
@@ -67,7 +53,7 @@ int atomic_num[] =
     6     //carbon
 };
 
-double e_mass = 5.972 * pow(10, 24); 
+double e_mass = 5.972 * pow(10, 24); //Mass of earth in grams
 
 
 main()
@@ -78,6 +64,7 @@ main()
         num_elec =
             e_mass *
             pow(10,6)*
+            pow(10,3)*
             ( avo / atomic_mass[i] ) *
             atomic_num[i];
     }

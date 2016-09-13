@@ -2,7 +2,10 @@
 #include <iostream>
 #include <iomanip>
 #include <bitset>
+
 using namespace std;
+
+#define EXAMPLES 5
 
 typedef unsigned long int raw32; 
 typedef unsigned long long int raw64; 
@@ -37,7 +40,6 @@ Single_Parts take_apart(double d)
 	Single_Parts sp;
 	raw64 x = *reinterpret_cast<raw64*>(&d);
         std::cout << std::bitset<64>(x) <<  std::endl;
-        std::cout << hex << x <<  std::endl;
 	sp.sign = (x & MASK_SIGN) >> 63;
 //        std::cout <<  std::bitset<1>(sp.sign) <<  std::endl;
 	sp.exponent = (x & MASK_BEXP) >> 52 + 3 ;
@@ -54,26 +56,24 @@ double build(Single_Parts sp)
             ( (raw64)sp.exponent << 52+3) +
             ((raw64)sp.fraction << 52 -23 );
         std::cout << std::bitset<64>(c) <<  std::endl;
-        std::cout << hex << c <<  std::endl;
 
 	return *reinterpret_cast<double*>(&c);
 }
 
 // defiVne Single_Parts, build(), and take_apart() for float
-const int EXAMPLES = 5;
 int main()
 {
 
 	double num_from_build;
 
-	double numbers[EXAMPLES]={1.0/3,2,1e100,5e100,6};
+	double numbers[EXAMPLES]={1.0/3,2,1.3e10,3e11,6};
 	
 	// show the structure of the numbers 
 	for (int i=0;i<EXAMPLES;i++)
 	{   
 		// take apart the numbers, then re-build to test that it works.
 		
-		Single_Parts s= take_apart(numbers[i]);
+		Single_Parts s = take_apart(numbers[i]);
 	 	num_from_build = build(s);
 
 	 	cout << endl;
