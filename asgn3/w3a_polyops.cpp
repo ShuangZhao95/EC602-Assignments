@@ -50,7 +50,7 @@ main()
     print_vector(c);
     std::cout << std::endl;
     print_vector(a);
-    std::cout << " x ";
+    std::cout << " . ";
     print_vector(b);
     std::cout << " = ";
     print_vector(d);
