@@ -9,8 +9,8 @@ Poly add_poly(const Poly &a, const Poly &b)
     Poly c;
     c = a.size() < b.size() ? a : b;
     const Poly *l = a.size() >= b.size() ? &a : &b;
-    c.resize( c.size() );
-    for(int i = 0 ; i < l->size() ; i++)
+    c.resize( l->size() );
+    for(int i = 0 ; i < l.size() ; i++)
     {
         c[i] += l->at(i);
     }
