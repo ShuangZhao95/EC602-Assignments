@@ -1,3 +1,4 @@
+// AUTHOR Alexander_Oleinik alxndr@bu.edu
 #include <vector>
 #include <iostream>
 using namespace std;
@@ -18,7 +19,7 @@ Poly add_poly(const Poly &a, const Poly &b)
 
 Poly multiply_poly(const Poly &a, const Poly &b)
 {
-    Poly c (a.size() + b.size(), 0);
+    Poly c (a.size() + b.size()-1, 0);
     for(int i = 0 ; i < a.size() ; i++)
     {
 	for(int j = 0 ; j < b.size() ; j++)
@@ -37,22 +38,3 @@ void print_vector(const Poly &v)
     std::cout << "} ";
 }
 
-main()
-{
-    Poly a {1, 3, 5, 6};
-    Poly b {1, 2, 3, 4, 5};
-    Poly c = add_poly(a, b);
-    Poly d = multiply_poly(a, b);
-    print_vector(a);
-    std::cout << " + ";
-    print_vector(b);
-    std::cout << " = ";
-    print_vector(c);
-    std::cout << std::endl;
-    print_vector(a);
-    std::cout << " . ";
-    print_vector(b);
-    std::cout << " = ";
-    print_vector(d);
-    std::cout << std::endl;
-}
