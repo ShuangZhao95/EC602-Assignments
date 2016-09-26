@@ -1,3 +1,4 @@
+# Better polynomial with negative exponent support
 # http://128.197.128.203:60216/static/content/assignment_4_modeling.html
 
 
