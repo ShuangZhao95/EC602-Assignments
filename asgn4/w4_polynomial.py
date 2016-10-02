@@ -1,3 +1,4 @@
+# AUTHOR Alexander Oleinik alxndr@bu.edu
 # Better polynomial with negative exponent support
 # http://128.197.128.203:60216/static/content/assignment_4_modeling.html
 
@@ -42,7 +43,7 @@ class Polynomial():
     def __sub__(self, other):
         s = Polynomial()
         for i in self.poly:
-            s[i] = s[i] - self[i]
+            s[i] = self[i]
         for j in other.poly:
             s[j] = s[j] - other[j]
         return s;
