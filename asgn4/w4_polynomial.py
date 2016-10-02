@@ -1,5 +1,9 @@
+# AUTHOR James Michael Clifford jcliff@bu.edu
+# AUTHOR Jingwei Zhang jyz5257@bu.edu
 # AUTHOR Alexander Oleinik alxndr@bu.edu
-# Better polynomial with negative exponent support
+# AUTHOR Alejandro Aparicio aaparici@bu.edu
+
+#Better polynomial with negative exponent support
 # http://128.197.128.203:60216/static/content/assignment_4_modeling.html
 
 
@@ -52,7 +56,7 @@ class Polynomial():
         s = Polynomial()
         for i in self.poly:
             for j in other.poly:
-                s[i+j] = self[i] * other[j]
+                s[i+j] += self[i] * other[j]
         return s;
     
     def __eq__(self, other):
@@ -70,6 +74,7 @@ class Polynomial():
             s[i-1] = self[i]*i
         return s
 
+    __repr__ = __str__
         
 def main():
     pass
