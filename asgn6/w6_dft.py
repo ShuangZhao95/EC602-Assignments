@@ -1,13 +1,21 @@
-from numpy import zeros,exp,array,pi
+from numpy import zeros, exp, array, pi
+
 def DFT(x):
-    '''Discrete Fourier Transform'''
-    j = 1j;
     try:
-        N = len(x)
-        X = array(zeros(N), dtype=complex);
-        for k in range(N):
-            for l in range(N):
-                X[k] += x[l]*exp(-j*2*pi*k*l/N)
-    except TypeError:
-        raise ValueError
-    return X
+
+        if type(x) != str: 
+      
+            N = len(x)
+            ans = 1 + zeros((N,),dtype ="complex128")
+            n = array((range(N)))
+            
+            for k in range(N):
+                ans[k] = round(sum(x*exp(-2j*pi*n*k/N)),10)
+            
+            return ans
+
+        else:
+            raise ValueError("input must be be a sequence of numbers")
+
+    except (TypeError):
+        raise ValueError("input must be be a sequence of numbers") 
