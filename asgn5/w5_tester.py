@@ -44,6 +44,15 @@ def check_all_files():
 
             print('exception',file_name,e)
             failed.append(file_name)
+        print('Run {} tests'.format(results.testsRun))
+    
+        print('you passed {} tests'.format(tests_passed))
+        for test,output in results.failures:
+            print(">>",test)
+            print(">>",output)
+        for test,output in results.errors:
+            print(">>",test)
+            print(">>",output)
 
 
     return passed,failed
