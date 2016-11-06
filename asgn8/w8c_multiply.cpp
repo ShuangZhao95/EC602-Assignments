@@ -1,26 +1,10 @@
-/*
- * =====================================================================================
- *
- *       Filename:  w8c_multiply.cpp
- *
- *    Description:  Reads in two matrices from two text files, and outputs the 
- *    result in a third text file.
- *
- *        Version:  1.0
- *        Created:  10/31/2016 07:38:29 AM
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  Alexander Oleinik (ax), alxndr@bu.edu
- *   Organization:  
- *
- * =====================================================================================
- */
+// AUTHOR alexander oleinik alxndr@bu.edu
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
+#include <iterator>
 
 
 typedef std::vector<std::vector<int> > intmatrix;
@@ -28,54 +12,63 @@ typedef  std::vector<std::vector<double> > doublematrix;
 enum mult_mode {SQUARE, GENERAL};
 enum error_code {ERR_ARGS, ERR_READ, ERR_SHAPE, ERR_WRITE};
 
-template<typename T> T matrix_multiply(const T &m1, const T &m2)
+int matrix_multiply(const intmatrix &m1, const intmatrix &m2, intmatrix* m3)
 {
-    T m3(m1.size() m2[0].size();
+    m3->resize(m1.size(), std::vector<int>(m2[0].size()));
     for (int i=0;i<m1.size();i++)
-        for (int j=0;j<m1[0].size();j++)
-            for (int k=0;k<m2[0].size();k++)
+        for (int j=0;j<m2[0].size();j++)
+            for (int k=0;k<m1[0].size();k++)
                 m3[i][j] += m1[i][k] * m2[k][j];
+}
 
+doublematrix matrix_multiply(const doublematrix &m1, const doublematrix &m2)
+{
+    doublematrix m3(m1.size(), std::vector<double>(m2[0].size()));
+    for (int i=0;i<m1.size();i++)
+        for (int j=0;j<m2[0].size();j++)
+            for (int k=0;k<m1[0].size();k++)
+                m3[i][j] += m1[i][k] * m2[k][j];
     return m3;
 }
 
-template<typename T> T read_matrix_from_file(std::string& fn, int& w)
-{
-    std::ifstream thisfile; // note: this is an IFSTREAM, "I" stands for INPUT
-    T m;
-    int count = 0;
-    while(thisfile >> m[count/w][count%w])
-        count ++;
-    thisfile.close();
 
-    return m;
-}
-
-doublematrix read_matrix_from_file(std::string& fn, int& w)
+int iread_matrix_from_file(std::string& fn, int& m, int& n, intmatrix* ma)
 {
     std::ifstream file; // note: this is an IFSTREAM, "I" stands for INPUT
-    file.open(fn);
-    doublematrix m(w, std::vector<double>(w));
+    file.open(fn.c_str());
+    if(!file) return -1;
+    ma->resize(m, std::vector<int>(n));
     int count = 0;
-    while(file >> m[count/w][count%w])
+    while(file >> ma[count/n][count%n])
         count ++;
     file.close();
 
-    return m;
+}
+doublematrix dread_matrix_from_file(std::string& fn, int& m, int& n)
+{
+    std::ifstream file; // note: this is an IFSTREAM, "I" stands for INPUT
+    file.open(fn.c_str());
+    doublematrix ma(m, std::vector<double>(n));
+    int count = 0;
+    while(file >> ma[count/n][count%n])
+        count ++;
+    file.close();
+
+    return ma;
 }
 
-template<typename T> void write_matrix_to_file(const char* fn, T m)
+template<typename T> int write_matrix_to_file(const char* fn, T m)
 {
     std::ofstream file; // note: this is an IFSTREAM, "I" stands for INPUT
     file.open(fn);
-    for (typename T::iterator it1 = m.begin() ; it1 < m.end(); it1++)
+    if(!file) return -1;
+    for (int i=0;i<m.size();i++)
     {
-        for ( typename T::iterator::iterator it2 = it1.begin() ; it2 < it1.end(); it2++)
-            file << it2;
-        file << std::endl;
+        for (int j=0;j<m[0].size();j++)
+                file << m[i][j] << " ";
+        file << std::endl;    
     }
-
-    return m;
+    file.close();
 }
 
 int main(int argc, char const *argv[])
@@ -87,16 +80,15 @@ int main(int argc, char const *argv[])
     dtype = std::string(argv[1]) == "double" ? true : false;
     if(argc == 6)
     {
-        mode =      SQUARE;
         N =         atoi(argv[2]);
         M =         N;
+        L =         N;
         file1 =     argv[3];
         file2 =     argv[4];
         file3 =     argv[5];
     }
     else if(argc == 8)
     {
-        mode =      GENERAL;
         M =         atoi(argv[2]);
         N =         atoi(argv[3]);
         L =         atoi(argv[4]);
@@ -110,11 +102,20 @@ int main(int argc, char const *argv[])
     }
     if(dtype)
     {
-        doublematrix m1 = read_matrix_from_file(file1, M); 
-        doublematrix m2 = read_matrix_from_file(file2, N); 
+        doublematrix m1 = dread_matrix_from_file(file1, M, N); 
+        doublematrix m2 = dread_matrix_from_file(file2, N, L); 
         doublematrix m3 = matrix_multiply(m1, m2);
+        write_matrix_to_file(file3.c_str(), m3);
     }
-
+    else
+    {
+        intmatrix m1, m2 , m3;
+        if(!iread_matrix_from_file(file1, M, N, &m1)) return 2;
+        if(!iread_matrix_from_file(file2, N, L, &m2)) return 2;
+        matrix_multiply(m1, m2, &m3);
+        write_matrix_to_file(file3.c_str(), m3);
+    }
+    return 0;
 }
 
 
