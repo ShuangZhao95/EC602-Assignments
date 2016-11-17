@@ -16,14 +16,24 @@ int list_matches(std::string s) {
     for(auto const& i: dictionary[s.length()][s])
         wordset.insert(i);
 }
-
+int strcontains(std::string large, std::string small)
+{
+    for(auto i: small)
+    {
+        int pos = large.find_first_of(i);
+        if(pos != std::string::npos)
+            large.erase(pos, pos);
+        else 
+            return 0;
+    }
+    return 1;
+}
 int dict_search(std::string s, int l) {
     for(auto const& i: dictionary[l])
     {
-        if(strcontains(s, i.first))
-            for(auto const )
-                wordset.insert(i);
-            wordset.insert(i);
+          if(strcontains(s, i.first))
+            for(auto const& j: *i)
+                wordset.insert(j);
     }
 }
 
@@ -57,7 +67,7 @@ int main(int argc, char *argv[]) {
         wordset.clear();
         strsort(searchstr);
         if (searchstr.length() < length) continue;
-        if(nCm(searchstr.length(), length) > dictionary[searchstr.length()].length()){
+        if(nCm(searchstr.length(), length) < dictionary[searchstr.length()].size()){
             strcomb(searchstr, 0, length, "");
         }
         
