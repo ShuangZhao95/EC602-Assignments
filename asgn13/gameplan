@@ -1,0 +1,27 @@
+load dictionaries into two lists indexed by length of tuples containing counter
+objects and the original wordfor each input get the first unknown length and
+iterate over all words of that length in the list. for each one check that
+intersection with the gameboard counter is equal to the original counter. then,
+for each matchchoose each occurence of the first letter and use a recursive
+algorithm to determine whether it is possible to assemble the word. repeat for
+each word(this needs to be recursive so best to use a few globals for
+dictionariesand maps and separate methods for playing the game
+
+
+findwords(set(lengths))
+    findword lengths[1]
+        if findword lengths[1:]  [1] = true
+            wordset.append findword[2]
+            return(true, words)
+
+
+indexing:
+5
+4
+3
+2
+1
+ 1 2 3 4 5
+
+this is friendly to the "falling letters"
+
