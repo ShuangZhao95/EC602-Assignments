@@ -1,20 +1,3 @@
-/*
- * =====================================================================================
- *
- *       Filename:  w13_wordbrainsolver.cpp
- *
- *    Description:  WordBrain game solver
- *
- *        Version:  1.0
- *        Created:  12/08/2016 08:46:39 AM
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  Alexander Oleinik (ax), alxndr@bu.edu
- *   Organization:  
- *
- * =====================================================================================
- */
 #include <stdlib.h>
 #include <fstream>
 #include <iostream>
@@ -23,23 +6,15 @@
 #include <map>
 #define ALPHABETS 26
 using namespace std;
+#define DEBUG(n, m) cout<< "DEBUG(code " << n << ") " << m << endl;
 
-/*
- * Gameboard Structure:
- * 4 e a v c
- * 3 v c s e
- * 2 e s v z
- * 1 w e f v
- *   1 2 3 4
-*/
-
-//A trie:[
 struct node
 {
     public:
         char me;
         struct node *parent;
         struct node *children[ALPHABETS];
+        string word = "";
         bool ep = false;        // Endpoint?
 };
 struct puzzle
@@ -53,8 +28,9 @@ struct puzzle
 int solve_controller(puzzle *puz,
                     node *trie,
                     vector<int> lengths,
-                    map<int, char> *sol,
+                    map<int, char> sol,
                     vector<string> *words);
+node * root;
 void puzzle::clear_board(int d)
 {
     dimension = d;
@@ -84,17 +60,21 @@ int solve_puzzle(puzzle *puz,                   //The puzzle board
     std::cout << trie->me << std::endl;
     map< int, char > tsol;
     (*sol)[cellx+celly*puz->dimension] = trie->me;
+    DEBUG(1337, trie->me);
     tsol.insert(sol->begin(), sol->end());
     for (const auto &p : (*sol)) 
         std::cout << "(" << p.first << ", " << p.second << "), ";
     cout << endl;
     if(trie->ep)
     {
+        DEBUG(1338, trie->word);
         vector<int> tlengths = lengths;
         tlengths.erase(tlengths.begin());
         vector<string> twords;
-        solve_controller(puz, trie, tlengths, sol, &twords);  
-        return true;
+        if(solve_controller(puz, root, tlengths, *sol, &twords))
+            return true;
+        else
+            return false;
     }
     int minx =  (cellx -1 > 0) ? cellx -1: 0;
     int miny =  (cellx -1 > 0) ? celly -1: 0;
@@ -135,21 +115,22 @@ int solve_puzzle(puzzle *puz,                   //The puzzle board
 int solve_controller(puzzle *puz,
                     node *trie,
                     vector<int> lengths,
-                    map<int, char> *sol,
+                    map<int, char> sol,
                     vector<string> *words)
 {
     std::cout << "looking for word length: " << lengths.front() << std::endl;
-    puzzle tpuz = (*puz);
-    for (std::map<int,char>::iterator it=sol->end(); it!=sol->begin(); --it)
+    puzzle tpuz = *puz;
+    for (std::map<int,char>::reverse_iterator it=sol.rbegin(); it!=sol.rend(); ++it)
     {
+        std::cout << "(" << it->first << ", " << it->second << "), ";
         tpuz.board[it->first%tpuz.dimension].erase(tpuz.board[it->first%tpuz.dimension].begin() + it->first/tpuz.dimension);
         std::cout << "deleting element from: " << it->first%tpuz.dimension << " " << it->first/tpuz.dimension << " " <<  it->first << std::endl;
-
     }
+
     for(int x=0; x < tpuz.board.size(); x++)
     {
         for(int y=0; y < tpuz.board.at(x).size(); y++){
-            std::cout << "\033[1;31mstarting at: \033[0m" << x << " " << y  << std::endl;
+            DEBUG(1200,"L"<<lengths.front()<<": Checking " << x << ", " << y <<  " " << tpuz.board.at(x).at(y) <<  endl);
             map< int, char > tsol; 
             vector<string> twords;
             if(solve_puzzle(&tpuz, lengths, trie->children[lengths.front()]->children[tpuz.board.at(x).at(y)-'a'], &tsol, x, y, &twords))
@@ -159,6 +140,8 @@ int solve_controller(puzzle *puz,
             }
         }
     }
+    std::cout << "No words found of length: " << lengths.front() << std::endl;
+    return false;
 }
 
 int load_dictionary(string fn, node *trie)
@@ -185,6 +168,7 @@ int load_dictionary(string fn, node *trie)
             traverse = traverse->children[c-'a'];
         }
         traverse->ep = true;
+        traverse->word= s;
     }
     return count;
 }
@@ -195,10 +179,11 @@ int main()
     load_puzzle(&puz);
     node trie = node();
     load_dictionary("small_word_list.txt", &trie);
+    root = &trie;
     map< int, char > sol;
     vector<int> lengths = {3,6};
     vector<string> words;
-    solve_controller(&puz, &trie, lengths, &sol, &words);  
+    solve_controller(&puz, &trie, lengths, sol, &words);
     for (const auto &p : sol) 
         std::cout << "sol[" << p.first << "] = " << p.second << '\n';
     cout << &sol << endl;
