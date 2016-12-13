@@ -6,7 +6,6 @@
 #include <map>
 #define ALPHABETS 26
 using namespace std;
-#define DEBUG(n, m)// cout<< "DEBUG(code " << n << ") " << m ;
 
 struct node
 {
@@ -39,19 +38,40 @@ void puzzle::clear_board(int d)
 	board.resize(dimension, vector<char>(d, 0));
 }
 
-int load_puzzle(puzzle *puz)
+
+int load_puzzle(string js, std::vector<int> *lengths,  puzzle *puz)
 {
-	puz->clear_board(5);
-	puz->board[0] = {'v','i','t','t','m'};
-	puz->board[1] = {'a','p','o','s','i'};
-	puz->board[2] = {'n','v','a','m','i'};
-	puz->board[3] = {'m','e','r','e','p'};
-	puz->board[4] = {'o','o','r','d','b'};
-	reverse(puz->board[0].begin(), puz->board[0].end());
-	reverse(puz->board[1].begin(), puz->board[1].end());
-	reverse(puz->board[2].begin(), puz->board[2].end());
-	reverse(puz->board[3].begin(), puz->board[3].end());
-	reverse(puz->board[4].begin(), puz->board[4].end());
+	std::size_t lb = js.find('[');
+	std::size_t rb = js.find(']');
+	std::string words = js.substr(lb+1, rb-lb-1);
+	lb = js.find('[', rb+1);
+	rb = js.find(']', rb+1);
+	std::string len = js.substr(lb+1, rb-lb-1);
+	int i = 0;
+	while(1)
+	{
+		std::size_t lq = words.find('"');
+		if(lq == std::string::npos)
+			break;
+		std::size_t rq = words.find('"', lq+1);
+		std::string word = words.substr(lq+1, rq-lq-1);
+		words.erase(lq, rq-lq+1);
+		if(word.length() != puz->dimension)
+			puz->clear_board(word.length());
+		for(int j=0; j< puz->dimension; j++)
+			puz->board[i][j]=word[puz->dimension-1-j];
+		i++;
+	}
+	cout << len<<endl;
+	while(1)
+	{
+		std::size_t rc = words.find(',');
+		if(rc == std::string::npos)
+			break;
+		int num = std::stoi(len.substr(0, rc-1));
+		std::cout << num << endl;
+		len.erase(0, 2);
+	}
 }
 int solve_puzzle(puzzle *puz,                   //The puzzle board 
 		vector<int> lengths,            //The coordinate of the current cell
@@ -65,16 +85,13 @@ int solve_puzzle(puzzle *puz,                   //The puzzle board
 	map< int, char > tsol;
 	tsol.insert(sol->begin(), sol->end());
 	(tsol)[cellx+celly*puz->dimension] = trie->me;
-	DEBUG(1337, trie->me);
 	for (const auto &p : (*sol)) 
 	if(trie->ep)
 	{
-		DEBUG(1338, trie->word << endl);
 		vector<int> tlengths = lengths;
 		tlengths.erase(tlengths.begin());
 		vector<string> twords = *words;
 		twords.push_back(trie->word);
-		DEBUG(1102,"twords is");
 		for (const auto &p : (twords)) 
 		if(solve_controller(puz, root, tlengths, tsol, &twords))
 		{
@@ -123,10 +140,12 @@ int solve_controller(puzzle *puz,
 {
 	if(lengths.size() == 0)
 	{
-		return true;
+		for (const auto &p : *words) 
+			cout << p <<" " ;
+		cout << std::endl;
+		return false;
 	}
 	puzzle tpuz = *puz;
-	DEBUG(17000, "");
 	for (std::map<int,char>::reverse_iterator it=sol.rbegin(); it!=sol.rend(); ++it)
 	{
 		tpuz.board[it->first%tpuz.dimension].erase(tpuz.board[it->first%tpuz.dimension].begin() + it->first/tpuz.dimension);
@@ -134,14 +153,11 @@ int solve_controller(puzzle *puz,
 	for(int x=0; x < tpuz.board.size(); x++)
 	{
 		for(int y=0; y < tpuz.board.at(x).size(); y++){
-			DEBUG(1200,"L"<<lengths.front()<<": Checking " << x << ", " << y <<  " " << tpuz.board.at(x).at(y) <<  endl);
 			map< int, char > tsol; 
 			vector<string> twords = *words;
 			if(solve_puzzle(&tpuz, lengths, trie->children[lengths.front()]->children[tpuz.board.at(x).at(y)-'a'], &tsol, x, y, &twords))
 			{
 				*words = twords;
-				DEBUG(17000,"words is");
-				tpuz.display(17004+lengths.front());
 				return true;
 			}
 		}
@@ -185,7 +201,10 @@ int load_dictionary(string fn, node *trie)
 int main()
 {
 	puzzle puz = puzzle();
-	load_puzzle(&puz);
+	std::string json;
+	getline(cin ,json);
+	vector<int> lengthss;
+	load_puzzle(json, &lengthss, &puz);
 	node trie = node();
 	load_dictionary("mega_word_list.txt", &trie);
 	root = &trie;
