@@ -6,7 +6,7 @@
 #include <map>
 #define ALPHABETS 26
 using namespace std;
-#define DEBUG(n, m) cout<< "DEBUG(code " << n << ") " << m << endl;
+#define DEBUG(n, m) cout<< "DEBUG(code " << n << ") " << m ;
 
 struct node
 {
@@ -23,6 +23,7 @@ struct puzzle
         int dimension = 0;
         vector< vector<char> > board;
         void clear_board(int d);
+        void display(int n);
 };
 
 int solve_controller(puzzle *puz,
@@ -38,15 +39,43 @@ void puzzle::clear_board(int d)
     board.resize(dimension, vector<char>(d, 0));
 }
 
+void puzzle::display(int n)
+{
+    for(int y=dimension-1; y >= 0; y--)
+    {
+        DEBUG(n, y);
+        for(int x=0; x < dimension; x++){
+            try{
+                cout << " " << board.at(x).at(y);
+            }
+            catch(std::out_of_range)
+            {
+                cout << "  ";
+            } 
+        }
+        cout << endl;
+    }
+    DEBUG(n, "  0 1 2 3 4 "<<endl);
+
+
+}
+
 int load_puzzle(puzzle *puz)
 {
-    puz->clear_board(3);
-    puz->board[0] = {'h', 'o', 's'};
+    puz->clear_board(5);
+    /*  puz->board[0] = {'h', 'o', 's'};
     puz->board[1] = {'e', 'q', 'u'};
-    puz->board[2] = {'e', 'r', 'a'};
+    puz->board[2] = {'e', 'r', 'a'};*/
+    puz->board[0] = {'v','i','t','t','m'};
+    puz->board[1] = {'a','p','o','s','i'};
+    puz->board[2] = {'n','v','a','m','i'};
+    puz->board[3] = {'m','e','r','e','p'};
+    puz->board[4] = {'o','o','r','d','b'};
     reverse(puz->board[0].begin(), puz->board[0].end());
     reverse(puz->board[1].begin(), puz->board[1].end());
     reverse(puz->board[2].begin(), puz->board[2].end());
+    reverse(puz->board[3].begin(), puz->board[3].end());
+    reverse(puz->board[4].begin(), puz->board[4].end());
 }
 int solve_puzzle(puzzle *puz,                   //The puzzle board 
                 vector<int> lengths,            //The coordinate of the current cell
@@ -59,9 +88,9 @@ int solve_puzzle(puzzle *puz,                   //The puzzle board
     if(!trie)return false;
     std::cout << trie->me << std::endl;
     map< int, char > tsol;
-    (*sol)[cellx+celly*puz->dimension] = trie->me;
-    DEBUG(1337, trie->me);
     tsol.insert(sol->begin(), sol->end());
+    (tsol)[cellx+celly*puz->dimension] = trie->me;
+    DEBUG(1337, trie->me);
     for (const auto &p : (*sol)) 
         std::cout << "(" << p.first << ", " << p.second << "), ";
     cout << endl;
@@ -70,9 +99,18 @@ int solve_puzzle(puzzle *puz,                   //The puzzle board
         DEBUG(1338, trie->word);
         vector<int> tlengths = lengths;
         tlengths.erase(tlengths.begin());
-        vector<string> twords;
-        if(solve_controller(puz, root, tlengths, *sol, &twords))
+        vector<string> twords = *words;
+        twords.push_back(trie->word);
+        DEBUG(1102,"twords is");
+        for (const auto &p : (twords)) 
+                std::cout << " " << p;
+        cout << endl;
+        if(solve_controller(puz, root, tlengths, tsol, &twords))
+        {
+            *words = twords;
+            *sol = tsol;
             return true;
+        }
         else
             return false;
     }
@@ -118,24 +156,38 @@ int solve_controller(puzzle *puz,
                     map<int, char> sol,
                     vector<string> *words)
 {
+
+    if(lengths.size() == 0)
+    {
+        return true;
+    }
+
     std::cout << "looking for word length: " << lengths.front() << std::endl;
     puzzle tpuz = *puz;
+    DEBUG(17000, "");
     for (std::map<int,char>::reverse_iterator it=sol.rbegin(); it!=sol.rend(); ++it)
     {
-        std::cout << "(" << it->first << ", " << it->second << "), ";
+        cout<<"Deleting " "(" << it->first << ", " << it->second << "), ";
         tpuz.board[it->first%tpuz.dimension].erase(tpuz.board[it->first%tpuz.dimension].begin() + it->first/tpuz.dimension);
-        std::cout << "deleting element from: " << it->first%tpuz.dimension << " " << it->first/tpuz.dimension << " " <<  it->first << std::endl;
+        //DEBUG(17000, "Deleting " << it->first%tpuz.dimension << " " << it->first/tpuz.dimension << " " <<  it->first << std::endl);
     }
+    cout << endl;
 
     for(int x=0; x < tpuz.board.size(); x++)
     {
         for(int y=0; y < tpuz.board.at(x).size(); y++){
             DEBUG(1200,"L"<<lengths.front()<<": Checking " << x << ", " << y <<  " " << tpuz.board.at(x).at(y) <<  endl);
             map< int, char > tsol; 
-            vector<string> twords;
+            vector<string> twords = *words;
             if(solve_puzzle(&tpuz, lengths, trie->children[lengths.front()]->children[tpuz.board.at(x).at(y)-'a'], &tsol, x, y, &twords))
             {
-                words = &twords;
+                cout << endl;
+                *words = twords;
+                DEBUG(17000,"words is");
+                for (const auto &p : (*words)) 
+                        std::cout << " " << p;
+                cout << endl;
+                tpuz.display(17004+lengths.front());
                 return true;
             }
         }
@@ -178,13 +230,13 @@ int main()
     puzzle puz = puzzle();
     load_puzzle(&puz);
     node trie = node();
-    load_dictionary("small_word_list.txt", &trie);
+    load_dictionary("mega_word_list.txt", &trie);
     root = &trie;
     map< int, char > sol;
-    vector<int> lengths = {3,6};
+    vector<int> lengths = {4,7,7,7};
     vector<string> words;
     solve_controller(&puz, &trie, lengths, sol, &words);
-    for (const auto &p : sol) 
-        std::cout << "sol[" << p.first << "] = " << p.second << '\n';
-    cout << &sol << endl;
+    for (const auto &p : words) 
+        std::cout << p <<" " ;
+    cout <<  endl;
 }
